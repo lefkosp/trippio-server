@@ -2,8 +2,9 @@ const mongoose = require('mongoose');
 
 const collaboratorSchema = new mongoose.Schema(
   {
-    userId: { type: String, required: true },
-    role: { type: String, enum: ['owner', 'editor', 'viewer'], required: true },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    role: { type: String, enum: ['editor', 'viewer'], required: true },
+    addedAt: { type: Date, default: Date.now },
   },
   { _id: false }
 );
@@ -24,7 +25,7 @@ const tripSchema = new mongoose.Schema(
     startDate: { type: Date, required: true },
     endDate: { type: Date, required: true },
     timezone: { type: String, default: 'Asia/Tokyo' },
-    createdBy: { type: String, default: 'seed-user' },
+    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     collaborators: [collaboratorSchema],
     shareLinks: [shareLinkSchema],
   },

@@ -3,25 +3,41 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
+const cookieParser = require('cookie-parser');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 
+const env = require('./config/env');
 const connectDb = require('./config/db');
 const apiRoutes = require('./routes/api.routes');
 const notFound = require('./middleware/notFound');
 const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
-const PORT = process.env.PORT || 4000;
-const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || 'http://localhost:5173';
+const PORT = env.port;
 
 // ── Middleware ──────────────────────────────────────────────
-app.use(cors({ origin: CLIENT_ORIGIN, credentials: true }));
+app.use(helmet());
+app.use(cors({ origin: env.clientOrigin, credentials: true }));
 app.use(express.json());
+app.use(cookieParser());
 app.use(morgan('dev'));
+
+// Rate limit auth endpoints (apply to /api/auth only via route)
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 30,
+  skip: () => env.isDev(),
+  message: { data: null, error: { message: 'Too many requests', code: 'RATE_LIMIT' } },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 // ── Health check ────────────────────────────────────────────
 app.get('/health', (_req, res) => res.json({ ok: true }));
 
 // ── API routes ──────────────────────────────────────────────
+app.use('/api/auth', authLimiter, require('./routes/auth.routes'));
 app.use('/api', apiRoutes);
 
 // ── Error handling ──────────────────────────────────────────
@@ -36,4 +52,7 @@ async function start() {
   });
 }
 
-start();
+start().catch((err) => {
+  console.error('❌  Server failed:', err);
+  process.exit(1);
+});

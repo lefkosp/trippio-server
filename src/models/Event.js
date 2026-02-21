@@ -32,6 +32,7 @@ const eventSchema = new mongoose.Schema(
       enum: ['planned', 'done', 'skipped'],
       default: 'planned',
     },
+    notes: { type: String },
   },
   { timestamps: true }
 );

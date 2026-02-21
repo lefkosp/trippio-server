@@ -1,12 +1,13 @@
 const asyncHandler = require('../middleware/asyncHandler');
 const tripService = require('../services/trip.service');
+const requireAuth = require('../middleware/requireAuth');
 
-exports.getTrips = asyncHandler(async (req, res) => {
-  const trips = await tripService.findAll();
+exports.getTrips = [requireAuth, asyncHandler(async (req, res) => {
+  const trips = await tripService.findAll(req.user.id);
   res.json({ data: trips, error: null });
-});
+})];
 
-exports.getTrip = asyncHandler(async (req, res) => {
+exports.getTrip = [asyncHandler(async (req, res) => {
   const trip = await tripService.findById(req.params.tripId);
   if (!trip) {
     return res.status(404).json({
@@ -15,9 +16,9 @@ exports.getTrip = asyncHandler(async (req, res) => {
     });
   }
   res.json({ data: trip, error: null });
-});
+})];
 
-exports.createTrip = asyncHandler(async (req, res) => {
-  const trip = await tripService.create(req.body);
+exports.createTrip = [requireAuth, asyncHandler(async (req, res) => {
+  const trip = await tripService.create(req.body, req.user.id);
   res.status(201).json({ data: trip, error: null });
-});
+})];

@@ -3,6 +3,9 @@
 /**
  * Idempotent seed script – populates MongoDB with a 12-day Japan trip.
  *
+ * Data mirrors the client-side mock data so both offline (localStorage)
+ * and seeded (MongoDB) environments are identical.
+ *
  * Usage:  npm run seed
  */
 
@@ -10,10 +13,12 @@ require('dotenv').config();
 
 const mongoose = require('mongoose');
 const connectDb = require('../config/db');
-const { Trip, Day, Event, Place, Booking, Suggestion } = require('../models');
+const { Trip, Day, Event, Place, Booking, Suggestion, User } = require('../models');
 const seedData = require('../seed/seedData');
 
-const TRIP_NAME = seedData.trip.name; // "Japan 12-Day MVP"
+const DEV_USER_EMAIL = 'dev@trippio.local';
+
+const TRIP_NAME = seedData.trip.name; // "Japan 2026"
 
 async function cleanPrevious() {
   const existing = await Trip.findOne({ name: TRIP_NAME });
@@ -40,12 +45,22 @@ async function seed() {
   // 1. Clean up any existing seed data
   await cleanPrevious();
 
-  // 2. Insert Trip
-  const trip = await Trip.create(seedData.trip);
+  // 2. Get or create dev user for createdBy
+  let devUser = await User.findOne({ email: DEV_USER_EMAIL });
+  if (!devUser) {
+    devUser = await User.create({ email: DEV_USER_EMAIL });
+    console.log(`✅  Dev user created: ${devUser.email}`);
+  } else {
+    console.log(`✅  Dev user exists: ${devUser.email}`);
+  }
+
+  // 3. Insert Trip (owned by dev user)
+  const { createdBy: _c, ...tripFields } = seedData.trip;
+  const trip = await Trip.create({ ...tripFields, createdBy: devUser._id });
   const tripId = trip._id;
   console.log(`✅  Trip created: ${trip.name} (${tripId})`);
 
-  // 3. Insert Places (we need their IDs for events)
+  // 4. Insert Places (we need their IDs for events)
   const placeDocs = await Place.insertMany(
     seedData.places.map((p) => ({
       tripId,
@@ -66,7 +81,7 @@ async function seed() {
   });
   console.log(`✅  ${placeDocs.length} places inserted.`);
 
-  // 4. Insert Days
+  // 5. Insert Days
   const dayDocs = await Day.insertMany(
     seedData.days.map((d) => ({
       tripId,
@@ -78,7 +93,7 @@ async function seed() {
   );
   console.log(`✅  ${dayDocs.length} days inserted.`);
 
-  // 5. Insert Events (resolve dayIdx → dayId, placeKey → placeId)
+  // 6. Insert Events (resolve dayIdx → dayId, placeKey → placeId)
   const eventRecords = seedData.events.map((e) => {
     const dayDoc = dayDocs[e.dayIdx];
     return {
@@ -89,24 +104,41 @@ async function seed() {
       endTime: e.endTime,
       type: e.type,
       placeId: e.placeKey ? placeMap[e.placeKey] : undefined,
-      transit: e.transit || {},
+      transit: e.transit || undefined,
       links: e.links || [],
       order: e.order,
       status: e.status,
+      notes: e.notes,
     };
   });
   const eventDocs = await Event.insertMany(eventRecords);
   console.log(`✅  ${eventDocs.length} events inserted.`);
 
-  // 6. Insert Bookings
+  // 7. Insert Bookings
   const bookingDocs = await Booking.insertMany(
-    seedData.bookings.map((b) => ({ ...b, tripId }))
+    seedData.bookings.map((b) => ({
+      tripId,
+      type: b.type,
+      title: b.title,
+      confirmationNumber: b.confirmationNumber,
+      date: b.date,
+      startTime: b.startTime,
+      location: b.location,
+      links: b.links || [],
+      notes: b.notes,
+    }))
   );
   console.log(`✅  ${bookingDocs.length} bookings inserted.`);
 
-  // 7. Insert Suggestions
+  // 8. Insert Suggestions
   const suggestionDocs = await Suggestion.insertMany(
-    seedData.suggestions.map((s) => ({ ...s, tripId }))
+    seedData.suggestions.map((s) => ({
+      tripId,
+      city: s.city,
+      title: s.title,
+      type: s.type,
+      why: s.why,
+    }))
   );
   console.log(`✅  ${suggestionDocs.length} suggestions inserted.`);
 

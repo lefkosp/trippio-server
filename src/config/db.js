@@ -1,14 +1,15 @@
 const mongoose = require('mongoose');
+const env = require('./env');
 
 /**
- * Connect to MongoDB using MONGO_URL env var.
+ * Connect to MongoDB using MONGO_URI (or MONGO_URL) env var.
  * Logs success / failure and exits the process on failure.
  */
 async function connectDb() {
-  const uri = process.env.MONGO_URL;
+  const uri = env.mongoUri;
 
   if (!uri) {
-    console.error('❌  MONGO_URL environment variable is required');
+    console.error('❌  MONGO_URI (or MONGO_URL) environment variable is required');
     process.exit(1);
   }
 

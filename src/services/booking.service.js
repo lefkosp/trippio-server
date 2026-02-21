@@ -1,6 +1,6 @@
 const Booking = require('../models/Booking');
 
-exports.findByTrip = (tripId) => Booking.find({ tripId }).sort({ dateTime: 1 });
+exports.findByTrip = (tripId) => Booking.find({ tripId }).sort({ date: 1 });
 
 exports.findById = (id) => Booking.findById(id);
 

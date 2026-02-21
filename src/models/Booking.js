@@ -8,10 +8,12 @@ const bookingSchema = new mongoose.Schema(
       enum: ['flight', 'hotel', 'reservation', 'rail', 'activity', 'other'],
       required: true,
     },
-    provider: { type: String },
-    confirmationCode: { type: String },
-    dateTime: { type: Date },
-    link: { type: String },
+    title: { type: String, required: true },
+    confirmationNumber: { type: String },
+    date: { type: String },       // YYYY-MM-DD
+    startTime: { type: String },  // HH:mm
+    location: { type: String },
+    links: [{ type: String }],
     notes: { type: String },
   },
   { timestamps: true }
