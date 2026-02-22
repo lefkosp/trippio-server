@@ -31,16 +31,16 @@ REFRESH_TOKEN_TTL_DAYS=30
 NODE_ENV=development
 ```
 
-| Variable | Required | Default | Description |
-|---|---|---|---|
-| `PORT` | No | `4000` | Server listen port |
-| `MONGO_URI` (or `MONGO_URL`) | **Yes** | — | MongoDB connection string |
-| `CLIENT_ORIGIN` | No | `http://localhost:5173` | Allowed CORS origin (for credentials) |
-| `APP_ORIGIN` | No | `http://localhost:5173` | Base URL for magic links |
-| `ACCESS_TOKEN_SECRET` | **Yes** (for auth) | — | Secret for signing JWTs |
-| `ACCESS_TOKEN_TTL_MINUTES` | No | `15` | Access token lifetime |
-| `REFRESH_TOKEN_TTL_DAYS` | No | `30` | Refresh session lifetime |
-| `NODE_ENV` | No | `development` | `production` enables secure cookies |
+| Variable                     | Required           | Default                 | Description                           |
+| ---------------------------- | ------------------ | ----------------------- | ------------------------------------- |
+| `PORT`                       | No                 | `4000`                  | Server listen port                    |
+| `MONGO_URI` (or `MONGO_URL`) | **Yes**            | —                       | MongoDB connection string             |
+| `CLIENT_ORIGIN`              | No                 | `http://localhost:5173` | Allowed CORS origin (for credentials) |
+| `APP_ORIGIN`                 | No                 | `http://localhost:5173` | Base URL for magic links              |
+| `ACCESS_TOKEN_SECRET`        | **Yes** (for auth) | —                       | Secret for signing JWTs               |
+| `ACCESS_TOKEN_TTL_MINUTES`   | No                 | `15`                    | Access token lifetime                 |
+| `REFRESH_TOKEN_TTL_DAYS`     | No                 | `30`                    | Refresh session lifetime              |
+| `NODE_ENV`                   | No                 | `development`           | `production` enables secure cookies   |
 
 ### 3. Seed the database
 
@@ -79,8 +79,11 @@ GET /health → { ok: true }
 GET    /api/trips
 POST   /api/trips
 GET    /api/trips/:tripId
+DELETE /api/trips/:tripId   (owner only; cascades to days, events, places, bookings, suggestions, proposals, share links)
 POST   /api/trips/:tripId/share-links
 ```
+
+**Delete trip:** `DELETE /api/trips/:tripId` requires owner auth. It permanently deletes the trip and all related documents (days, events, places, bookings, suggestions, proposals, share links). Deleting a non-existent trip returns 404.
 
 ### Days
 

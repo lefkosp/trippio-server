@@ -33,6 +33,8 @@ const eventSchema = new mongoose.Schema(
       default: 'planned',
     },
     notes: { type: String },
+    source: { type: String },           // e.g. 'proposal' when created from a proposal
+    proposalId: { type: mongoose.Schema.Types.ObjectId, ref: 'Proposal' },
   },
   { timestamps: true }
 );

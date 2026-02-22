@@ -13,6 +13,7 @@ const router = Router();
 router.get('/', ...ctrl.getTrips);
 router.post('/', ...ctrl.createTrip);
 router.get('/:tripId', attachAccessContext, requireTripReadAccess('tripId'), ...ctrl.getTrip);
+router.delete('/:tripId', requireAuth, requireTripOwner('tripId'), ...ctrl.deleteTrip);
 router.post('/:tripId/share-links', requireAuth, requireTripOwner('tripId'), ...shareCtrl.createShareLink);
 
 module.exports = router;

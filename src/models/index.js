@@ -8,6 +8,7 @@ const User = require('./User');
 const LoginToken = require('./LoginToken');
 const Session = require('./Session');
 const TripShareLink = require('./TripShareLink');
+const Proposal = require('./Proposal');
 
 module.exports = {
   Trip,
@@ -20,4 +21,5 @@ module.exports = {
   LoginToken,
   Session,
   TripShareLink,
+  Proposal,
 };

@@ -22,3 +22,18 @@ exports.createTrip = [requireAuth, asyncHandler(async (req, res) => {
   const trip = await tripService.create(req.body, req.user.id);
   res.status(201).json({ data: trip, error: null });
 })];
+
+exports.deleteTrip = [
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    const tripId = req.params.tripId;
+    const result = await tripService.deleteTripAndRelated(tripId);
+    if (!result) {
+      return res.status(404).json({
+        data: null,
+        error: { message: 'Trip not found', code: 'NOT_FOUND' },
+      });
+    }
+    res.json({ data: { ok: true }, error: null });
+  }),
+];
