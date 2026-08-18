@@ -1,0 +1,33 @@
+services:
+  - type: web
+    name: trippio-server
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4000
+      - key: MONGO_URI
+        sync: false
+      - key: CLIENT_ORIGIN
+        sync: false
+      - key: APP_ORIGIN
+        sync: false
+      - key: ACCESS_TOKEN_SECRET
+        sync: false
+      - key: ACCESS_TOKEN_TTL_MINUTES
+        value: 15
+      - key: REFRESH_TOKEN_TTL_DAYS
+        value: 30
+      - key: COOKIE_DOMAIN
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: EMAIL_FROM
+        sync: false
+      - key: SENTRY_DSN
+        sync: false

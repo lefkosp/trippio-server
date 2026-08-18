@@ -46,6 +46,11 @@ module.exports = {
   accessTokenTtlMinutes: optionalNumber('ACCESS_TOKEN_TTL_MINUTES', 15),
   refreshTokenTtlDays: optionalNumber('REFRESH_TOKEN_TTL_DAYS', 30),
   nodeEnv: optional('NODE_ENV', 'development'),
+  // Leave unset unless client and API share a parent domain
+  cookieDomain: optional('COOKIE_DOMAIN', ''),
+  resendApiKey: optional('RESEND_API_KEY', ''),
+  emailFrom: optional('EMAIL_FROM', 'Trippio <onboarding@resend.dev>'),
+  sentryDsn: optional('SENTRY_DSN', ''),
   isProd,
   isDev: () => !isProd(),
 };

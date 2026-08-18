@@ -29,18 +29,26 @@ ACCESS_TOKEN_SECRET=<random-secret-at-least-32-chars>
 ACCESS_TOKEN_TTL_MINUTES=15
 REFRESH_TOKEN_TTL_DAYS=30
 NODE_ENV=development
+COOKIE_DOMAIN=
+RESEND_API_KEY=
+EMAIL_FROM=Trippio <onboarding@resend.dev>
+SENTRY_DSN=
 ```
 
-| Variable                     | Required           | Default                 | Description                           |
-| ---------------------------- | ------------------ | ----------------------- | ------------------------------------- |
-| `PORT`                       | No                 | `4000`                  | Server listen port                    |
-| `MONGO_URI` (or `MONGO_URL`) | **Yes**            | —                       | MongoDB connection string             |
-| `CLIENT_ORIGIN`              | No                 | `http://localhost:5173` | Allowed CORS origin (for credentials) |
-| `APP_ORIGIN`                 | No                 | `http://localhost:5173` | Base URL for magic links              |
-| `ACCESS_TOKEN_SECRET`        | **Yes** (for auth) | —                       | Secret for signing JWTs               |
-| `ACCESS_TOKEN_TTL_MINUTES`   | No                 | `15`                    | Access token lifetime                 |
-| `REFRESH_TOKEN_TTL_DAYS`     | No                 | `30`                    | Refresh session lifetime              |
-| `NODE_ENV`                   | No                 | `development`           | `production` enables secure cookies   |
+| Variable                     | Required           | Default                           | Description                                                                    |
+| ----------------------------- | ------------------ | ----------------------------------- | ---------------------------------------------------------------------------------- |
+| `PORT`                       | No                 | `4000`                            | Server listen port                                                             |
+| `MONGO_URI` (or `MONGO_URL`) | **Yes**            | —                                 | MongoDB connection string                                                       |
+| `CLIENT_ORIGIN`              | No                 | `http://localhost:5173`           | Allowed CORS origin (for credentials)                                           |
+| `APP_ORIGIN`                 | No                 | `http://localhost:5173`           | Base URL for magic links                                                        |
+| `ACCESS_TOKEN_SECRET`        | **Yes** (for auth) | —                                 | Secret for signing JWTs                                                          |
+| `ACCESS_TOKEN_TTL_MINUTES`   | No                 | `15`                              | Access token lifetime                                                            |
+| `REFRESH_TOKEN_TTL_DAYS`     | No                 | `30`                              | Refresh session lifetime                                                         |
+| `NODE_ENV`                   | No                 | `development`                     | `production` enables secure cookies                                             |
+| `COOKIE_DOMAIN`              | No                 | unset                             | Refresh-cookie domain; only set if client and API share a parent domain          |
+| `RESEND_API_KEY`             | No                 | unset                             | Enables real magic-link email delivery via [Resend](https://resend.com); without it, the link is logged/returned in dev only |
+| `EMAIL_FROM`                 | No                 | `Trippio <onboarding@resend.dev>` | From address for magic-link emails                                              |
+| `SENTRY_DSN`                 | No                 | unset                             | Enables Sentry error reporting                                                   |
 
 ### 3. Seed the database
 
@@ -48,6 +56,12 @@ Inserts a 12-day Japan trip with days, places, events, bookings, and suggestions
 
 ```bash
 npm run seed
+```
+
+To create (or update) the real trip skeleton — no fake itinerary, just the `Trip` document, owned by `SEED_OWNER_EMAIL` (defaults to `paplefkos@gmail.com`):
+
+```bash
+npm run seed:trip
 ```
 
 ### 4. Start the dev server
