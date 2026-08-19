@@ -18,8 +18,66 @@ exports.getTrip = [asyncHandler(async (req, res) => {
   res.json({ data: trip, error: null });
 })];
 
+function validateCreateTripBody(body) {
+  const errors = [];
+  if (!body.name || typeof body.name !== 'string' || !body.name.trim()) {
+    errors.push('name is required');
+  }
+  if (!body.startDate) errors.push('startDate is required');
+  if (!body.endDate) errors.push('endDate is required');
+  const prefs = body.preferences;
+  if (!prefs || typeof prefs !== 'object') {
+    errors.push('preferences is required');
+  } else {
+    if (!prefs.destinationCity || typeof prefs.destinationCity !== 'string' || !prefs.destinationCity.trim()) {
+      errors.push('preferences.destinationCity is required');
+    }
+    if (!prefs.pace || !['relaxed', 'balanced', 'packed'].includes(prefs.pace)) {
+      errors.push('preferences.pace is required (relaxed, balanced, or packed)');
+    }
+    if (!Array.isArray(prefs.interests)) {
+      errors.push('preferences.interests must be an array');
+    } else if (prefs.interests.length < 1) {
+      errors.push('preferences.interests must have at least one item');
+    }
+    if (!prefs.budgetLevel || !['low', 'mid', 'high'].includes(prefs.budgetLevel)) {
+      errors.push('preferences.budgetLevel is required (low, mid, or high)');
+    }
+    const gs = prefs.groupSize;
+    if (gs === undefined || gs === null || typeof gs !== 'number' || gs < 1) {
+      errors.push('preferences.groupSize is required and must be at least 1');
+    }
+  }
+  return errors;
+}
+
 exports.createTrip = [requireAuth, asyncHandler(async (req, res) => {
-  const trip = await tripService.create(req.body, req.user.id);
+  const validationErrors = validateCreateTripBody(req.body);
+  if (validationErrors.length > 0) {
+    return res.status(400).json({
+      data: null,
+      error: { message: validationErrors.join('; '), code: 'VALIDATION_ERROR' },
+    });
+  }
+  const { name, startDate, endDate, timezone, preferences } = req.body;
+  const payload = {
+    name: name.trim(),
+    startDate: new Date(startDate),
+    endDate: new Date(endDate),
+    timezone: timezone || undefined,
+    preferences: {
+      destinationCity: preferences.destinationCity.trim(),
+      destinationCountry: preferences.destinationCountry?.trim() || undefined,
+      pace: preferences.pace,
+      dailyStructure: preferences.dailyStructure || undefined,
+      interests: Array.isArray(preferences.interests) ? preferences.interests : [],
+      budgetLevel: preferences.budgetLevel,
+      transportPreference: preferences.transportPreference || undefined,
+      notes: preferences.notes?.trim() || undefined,
+      groupSize: Number(preferences.groupSize),
+    },
+  };
+  const trip = await tripService.create(payload, req.user.id);
   res.status(201).json({ data: trip, error: null });
 })];
 

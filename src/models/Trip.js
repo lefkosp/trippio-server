@@ -19,6 +19,21 @@ const shareLinkSchema = new mongoose.Schema(
   { _id: false }
 );
 
+const preferencesSchema = new mongoose.Schema(
+  {
+    destinationCity: { type: String, required: true },
+    destinationCountry: { type: String },
+    pace: { type: String, enum: ['relaxed', 'balanced', 'packed'], required: true },
+    dailyStructure: { type: String, enum: ['morning-heavy', 'evening-heavy', 'mixed'] },
+    interests: { type: [String], default: [] },
+    budgetLevel: { type: String, enum: ['low', 'mid', 'high'], required: true },
+    transportPreference: { type: String, enum: ['publicTransport', 'mixed', 'taxis'] },
+    notes: { type: String },
+    groupSize: { type: Number, required: true, min: 1 },
+  },
+  { _id: false }
+);
+
 const tripSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
@@ -28,6 +43,7 @@ const tripSchema = new mongoose.Schema(
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     collaborators: [collaboratorSchema],
     shareLinks: [shareLinkSchema],
+    preferences: { type: preferencesSchema },
   },
   { timestamps: true }
 );
