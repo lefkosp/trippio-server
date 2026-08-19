@@ -39,5 +39,7 @@ router.post('/proposals/:proposalId/votes', ...proposalWriteAccess, ctrl.votePro
 router.post('/proposals/:proposalId/approve', ...proposalWriteAccess, ctrl.approveProposal);
 router.post('/proposals/:proposalId/reject', ...proposalWriteAccess, ctrl.rejectProposal);
 router.post('/proposals/:proposalId/convert', ...proposalWriteAccess, ctrl.convertProposal);
+router.post('/proposals/:proposalId/promote', ...proposalWriteAccess, ctrl.promoteProposal);
+router.patch('/proposals/:proposalId/preview', ...proposalWriteAccess, ctrl.setProposalPreview);
 
 module.exports = router;

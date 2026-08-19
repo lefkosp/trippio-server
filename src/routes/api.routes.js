@@ -8,6 +8,7 @@ const bookingRoutes = require('./booking.routes');
 const suggestionRoutes = require('./suggestion.routes');
 const shareRoutes = require('./share.routes');
 const proposalRoutes = require('./proposal.routes');
+const previewRoutes = require('./preview.routes');
 
 const router = Router();
 
@@ -22,5 +23,6 @@ router.use(bookingRoutes);
 router.use(suggestionRoutes);
 router.use(shareRoutes);
 router.use(proposalRoutes);
+router.use(previewRoutes);
 
 module.exports = router;
