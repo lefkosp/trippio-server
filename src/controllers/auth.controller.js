@@ -1,6 +1,7 @@
 const asyncHandler = require('../middleware/asyncHandler');
 const env = require('../config/env');
 const authService = require('../services/auth.service');
+const emailService = require('../services/email.service');
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -26,6 +27,8 @@ exports.requestLink = asyncHandler(async (req, res) => {
   const { raw, expiresAt } = await authService.createLoginToken(user._id);
   const appOrigin = env.appOrigin.replace(/\/$/, '');
   const magicLink = `${appOrigin}/auth/verify?token=${raw}`;
+
+  await emailService.sendMagicLinkEmail({ to: trimmed, magicLink });
 
   if (env.isDev()) {
     console.log('[DEV] Magic link (do not log in prod):', magicLink);

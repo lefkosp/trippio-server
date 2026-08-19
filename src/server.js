@@ -6,12 +6,17 @@ const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const Sentry = require('@sentry/node');
 
 const env = require('./config/env');
 const connectDb = require('./config/db');
 const apiRoutes = require('./routes/api.routes');
 const notFound = require('./middleware/notFound');
 const errorHandler = require('./middleware/errorHandler');
+
+if (env.sentryDsn) {
+  Sentry.init({ dsn: env.sentryDsn, environment: env.nodeEnv });
+}
 
 const app = express();
 const PORT = env.port;
@@ -41,6 +46,9 @@ app.use('/api/auth', authLimiter, require('./routes/auth.routes'));
 app.use('/api', apiRoutes);
 
 // ── Error handling ──────────────────────────────────────────
+if (env.sentryDsn) {
+  Sentry.setupExpressErrorHandler(app);
+}
 app.use(notFound);
 app.use(errorHandler);
 

@@ -12,7 +12,7 @@ function getCookieOptions() {
       httpOnly: true,
       secure: true,
       sameSite: 'none',
-      domain: '.trippio.com',
+      domain: env.cookieDomain || undefined,
       maxAge: env.refreshTokenTtlDays * 24 * 60 * 60 * 1000,
     };
   }
