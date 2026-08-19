@@ -13,7 +13,7 @@ require('dotenv').config();
 
 const mongoose = require('mongoose');
 const connectDb = require('../config/db');
-const { Trip, Day, Event, Place, Booking, Suggestion, User } = require('../models');
+const { Trip, Day, Event, Place, Booking, Suggestion, Proposal, User } = require('../models');
 const seedData = require('../seed/seedData');
 
 const DEV_USER_EMAIL = 'dev@trippio.local';
@@ -33,6 +33,7 @@ async function cleanPrevious() {
     Place.deleteMany({ tripId }),
     Booking.deleteMany({ tripId }),
     Suggestion.deleteMany({ tripId }),
+    Proposal.deleteMany({ tripId }),
     Trip.deleteOne({ _id: tripId }),
   ]);
 
@@ -53,6 +54,20 @@ async function seed() {
   } else {
     console.log(`✅  Dev user exists: ${devUser.email}`);
   }
+
+  // 2b. Get or create the friend users referenced by proposals' userIdx
+  // (0 = devUser, 1-3 = these, in order) — persist across reseeds same as
+  // devUser, so re-running the seed doesn't spawn duplicate accounts.
+  const friendUsers = [];
+  for (const email of seedData.friends) {
+    let user = await User.findOne({ email });
+    if (!user) {
+      user = await User.create({ email });
+      console.log(`✅  Friend user created: ${user.email}`);
+    }
+    friendUsers.push(user);
+  }
+  const userDocs = [devUser, ...friendUsers];
 
   // 3. Insert Trip (owned by dev user — ownership is createdBy, not a collaborator row)
   const { createdBy: _c, collaborators: _co, ...tripFields } = seedData.trip;
@@ -141,6 +156,40 @@ async function seed() {
     }))
   );
   console.log(`✅  ${suggestionDocs.length} suggestions inserted.`);
+
+  // 9. Insert Proposals (resolve userIdx → userDocs, dayIdx → dayDocs,
+  // placeKey/promotedPlaceKey → placeMap)
+  const proposalDocs = await Proposal.insertMany(
+    seedData.proposals.map((p) => ({
+      tripId,
+      title: p.title,
+      description: p.description,
+      category: p.category,
+      city: p.city,
+      source: p.source,
+      url: p.url,
+      tags: p.tags || [],
+      suggestedDayId: p.dayIdx != null ? dayDocs[p.dayIdx]._id : undefined,
+      suggestedPlaceId: p.placeKey ? placeMap[p.placeKey] : undefined,
+      proposedBy: userDocs[p.proposedByIdx ?? 0]._id,
+      status: p.status,
+      votes: (p.votes || []).map((v) => ({
+        userId: userDocs[v.userIdx]._id,
+        value: v.value,
+        votedAt: new Date(v.votedAt),
+      })),
+      approvedBy: p.approvedByIdx != null ? userDocs[p.approvedByIdx]._id : undefined,
+      approvedAt: p.approvedAt ? new Date(p.approvedAt) : undefined,
+      rejectedBy: p.rejectedByIdx != null ? userDocs[p.rejectedByIdx]._id : undefined,
+      rejectedAt: p.rejectedAt ? new Date(p.rejectedAt) : undefined,
+      placeId: p.promotedPlaceKey ? placeMap[p.promotedPlaceKey] : undefined,
+      promotedBy: p.promotedByIdx != null ? userDocs[p.promotedByIdx]._id : undefined,
+      promotedAt: p.promotedAt ? new Date(p.promotedAt) : undefined,
+      createdAt: new Date(p.createdAt),
+    })),
+    { timestamps: false }
+  );
+  console.log(`✅  ${proposalDocs.length} proposals inserted.`);
 
   console.log('\n🎉  Seed complete!\n');
 

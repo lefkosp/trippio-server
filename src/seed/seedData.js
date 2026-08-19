@@ -106,6 +106,18 @@ const places = [
     tags: ['museum', 'sight'],
     notes: 'Book tickets in advance. Allow 2-3 hours.',
   },
+  {
+    // Not on anyone's original itinerary — this is what proposal #2 below
+    // turns into once promoted, demonstrating the capture -> place seam.
+    key: 'omoide-yokocho',
+    name: 'Omoide Yokocho',
+    address: '1 Chome Nishishinjuku, Shinjuku City, Tokyo',
+    lat: 35.6938,
+    lng: 139.6997,
+    googleMapsUrl: 'https://maps.google.com/?q=Omoide+Yokocho',
+    tags: ['food', 'yakitori'],
+    notes: 'Tiny alleyway of yakitori stalls near Shinjuku station. Cash only at most stalls.',
+  },
 ];
 
 // ── Days ────────────────────────────────────────────────────
@@ -383,4 +395,219 @@ const suggestions = [
   },
 ];
 
-module.exports = { trip, days, places, events, bookings, suggestions };
+// ── Friends ─────────────────────────────────────────────────
+// The dev user (index 0, created separately by seed.js) plus three more —
+// proposals below reference these by index so the Inbox has more than one
+// voice in it, which is the whole point of seeding it at all.
+const friends = [
+  'friend1@trippio.local',
+  'friend2@trippio.local',
+  'friend3@trippio.local',
+];
+
+// ── Proposals ───────────────────────────────────────────────
+// userIdx: 0 = dev user, 1-3 = friends[0-2] (see seed.js for resolution).
+// dayIdx / placeKey mirror the events array above. Dates are backdated into
+// the weeks before the trip so "Recent" and "Most liked" sort differently —
+// vote count here is deliberately uncorrelated with creation order.
+const proposals = [
+  {
+    title: 'Airport train vs bus from Narita',
+    proposedByIdx: 0,
+    description: "Skyliner is faster but pricier than the limousine bus, need to decide before we book",
+    category: 'transport',
+    city: 'Tokyo',
+    source: 'web',
+    url: 'https://en.wikipedia.org/wiki/Narita_Airport',
+    tags: ['logistics'],
+    createdAt: '2026-01-28',
+    votes: [
+      { userIdx: 0, value: 'yes', votedAt: '2026-01-29' },
+      { userIdx: 1, value: 'no', votedAt: '2026-01-29' },
+      { userIdx: 2, value: 'yes', votedAt: '2026-01-30' },
+    ],
+    status: 'open',
+  },
+  {
+    title: 'Ichiran late-night ramen run',
+    proposedByIdx: 1,
+    description: 'saw this on a friend\'s story, apparently the queue moves fast even at 1am',
+    category: 'food',
+    city: 'Tokyo',
+    source: 'manual',
+    tags: ['ramen', 'late-night'],
+    createdAt: '2026-02-01',
+    votes: [
+      { userIdx: 0, value: 'yes', votedAt: '2026-02-01' },
+      { userIdx: 1, value: 'yes', votedAt: '2026-02-02' },
+      { userIdx: 2, value: 'yes', votedAt: '2026-02-02' },
+      { userIdx: 3, value: 'maybe', votedAt: '2026-02-03' },
+    ],
+    status: 'open',
+  },
+  {
+    title: 'Omoide Yokocho (Piss Alley)',
+    proposedByIdx: 2,
+    description: 'tiny alleyway of yakitori stalls near Shinjuku station, looks incredible at night',
+    category: 'food',
+    city: 'Tokyo',
+    source: 'tiktok',
+    tags: ['yakitori', 'night'],
+    createdAt: '2026-02-03',
+    votes: [
+      { userIdx: 0, value: 'yes', votedAt: '2026-02-03' },
+      { userIdx: 1, value: 'yes', votedAt: '2026-02-04' },
+      { userIdx: 2, value: 'yes', votedAt: '2026-02-04' },
+      { userIdx: 3, value: 'yes', votedAt: '2026-02-05' },
+    ],
+    status: 'promoted',
+    approvedByIdx: 0,
+    approvedAt: '2026-02-06',
+    promotedByIdx: 1,
+    promotedAt: '2026-02-20',
+    promotedPlaceKey: 'omoide-yokocho',
+  },
+  {
+    title: 'Kinkaku-ji at golden hour',
+    proposedByIdx: 3,
+    description: 'the reflection shot everyone gets, worth the crowds?',
+    category: 'activity',
+    city: 'Kyoto',
+    source: 'instagram',
+    tags: ['temple', 'photo'],
+    createdAt: '2026-02-05',
+    votes: [
+      { userIdx: 0, value: 'maybe', votedAt: '2026-02-06' },
+      { userIdx: 1, value: 'yes', votedAt: '2026-02-06' },
+      { userIdx: 2, value: 'no', votedAt: '2026-02-07' },
+      { userIdx: 3, value: 'maybe', votedAt: '2026-02-08' },
+    ],
+    status: 'open',
+  },
+  {
+    title: 'teamLab Planets instead of Borderless?',
+    proposedByIdx: 0,
+    description: 'Planets has the water rooms, Borderless is bigger. we already have Borderless on the day 4 plan, thoughts on swapping?',
+    category: 'activity',
+    city: 'Tokyo',
+    source: 'web',
+    url: 'https://en.wikipedia.org/wiki/TeamLab',
+    tags: ['art', 'indoor'],
+    dayIdx: 3,
+    createdAt: '2026-02-06',
+    votes: [
+      { userIdx: 0, value: 'no', votedAt: '2026-02-07' },
+      { userIdx: 1, value: 'no', votedAt: '2026-02-07' },
+      { userIdx: 2, value: 'no', votedAt: '2026-02-08' },
+      { userIdx: 3, value: 'maybe', votedAt: '2026-02-08' },
+    ],
+    status: 'rejected',
+    rejectedByIdx: 2,
+    rejectedAt: '2026-02-09',
+  },
+  {
+    title: 'Nishiki Market snack crawl',
+    proposedByIdx: 1,
+    description: "'Kyoto's kitchen', apparently good for grabbing lunch on the day we do Fushimi Inari",
+    category: 'food',
+    city: 'Kyoto',
+    source: 'manual',
+    tags: ['market', 'lunch'],
+    dayIdx: 5,
+    createdAt: '2026-02-08',
+    votes: [
+      { userIdx: 0, value: 'yes', votedAt: '2026-02-09' },
+      { userIdx: 1, value: 'yes', votedAt: '2026-02-09' },
+      { userIdx: 2, value: 'yes', votedAt: '2026-02-10' },
+      { userIdx: 3, value: 'yes', votedAt: '2026-02-10' },
+    ],
+    status: 'approved',
+    approvedByIdx: 3,
+    approvedAt: '2026-02-11',
+  },
+  {
+    title: 'Dotonbori river cruise',
+    proposedByIdx: 2,
+    description: 'saw someone doing the Tombori River Cruise, 20 min boat ride through the neon district',
+    category: 'activity',
+    city: 'Osaka',
+    source: 'instagram',
+    tags: ['boat', 'night-view'],
+    createdAt: '2026-02-10',
+    votes: [
+      { userIdx: 0, value: 'yes', votedAt: '2026-02-11' },
+      { userIdx: 1, value: 'maybe', votedAt: '2026-02-11' },
+    ],
+    status: 'open',
+  },
+  {
+    title: 'Capsule hotel one night in Osaka just to try it',
+    proposedByIdx: 3,
+    description: 'half joking half not. anyone actually want to do this or nah',
+    category: 'stay',
+    city: 'Osaka',
+    source: 'manual',
+    tags: ['novelty'],
+    createdAt: '2026-02-12',
+    votes: [
+      { userIdx: 0, value: 'no', votedAt: '2026-02-13' },
+      { userIdx: 1, value: 'no', votedAt: '2026-02-13' },
+      { userIdx: 2, value: 'no', votedAt: '2026-02-13' },
+      { userIdx: 3, value: 'no', votedAt: '2026-02-13' },
+    ],
+    status: 'rejected',
+    rejectedByIdx: 0,
+    rejectedAt: '2026-02-14',
+  },
+  {
+    title: 'Robot Restaurant Shinjuku',
+    proposedByIdx: 0,
+    description: "this looks unhinged in the best way, but I've read it's a tourist trap now",
+    category: 'activity',
+    city: 'Tokyo',
+    source: 'tiktok',
+    tags: ['nightlife'],
+    createdAt: '2026-02-14',
+    votes: [
+      { userIdx: 0, value: 'maybe', votedAt: '2026-02-15' },
+      { userIdx: 1, value: 'no', votedAt: '2026-02-15' },
+      { userIdx: 2, value: 'maybe', votedAt: '2026-02-16' },
+    ],
+    status: 'open',
+  },
+  {
+    title: 'Kobe beef dinner splurge night',
+    proposedByIdx: 1,
+    description: 'one nice dinner somewhere in the trip? Kobe beef teppanyaki in Osaka could be the one',
+    category: 'food',
+    city: 'Osaka',
+    source: 'manual',
+    tags: ['splurge', 'dinner'],
+    createdAt: '2026-02-16',
+    votes: [
+      { userIdx: 0, value: 'yes', votedAt: '2026-02-17' },
+      { userIdx: 1, value: 'yes', votedAt: '2026-02-17' },
+      { userIdx: 2, value: 'maybe', votedAt: '2026-02-18' },
+      { userIdx: 3, value: 'yes', votedAt: '2026-02-18' },
+    ],
+    status: 'open',
+  },
+  {
+    title: 'Arashiyama rickshaw ride',
+    proposedByIdx: 2,
+    description: 'pricey but apparently the driver gives a proper local history tour through the bamboo grove',
+    category: 'activity',
+    city: 'Kyoto',
+    source: 'web',
+    url: 'https://en.wikipedia.org/wiki/Jinrikisha',
+    tags: ['bamboo', 'tour'],
+    placeKey: 'arashiyama',
+    createdAt: '2026-02-18',
+    votes: [
+      { userIdx: 0, value: 'maybe', votedAt: '2026-02-19' },
+    ],
+    status: 'open',
+  },
+];
+
+module.exports = { trip, days, places, events, bookings, suggestions, friends, proposals };
