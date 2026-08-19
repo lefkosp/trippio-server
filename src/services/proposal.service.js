@@ -2,6 +2,7 @@ const Proposal = require('../models/Proposal');
 const Place = require('../models/Place');
 const Event = require('../models/Event');
 const Day = require('../models/Day');
+const geocodeService = require('./geocode.service');
 
 const CATEGORY_TO_EVENT_TYPE = {
   food: 'food',
@@ -213,6 +214,14 @@ exports.promoteToPlace = async (proposalId, userId, { address, lat, lng, name, n
     tags: proposal.tags || [],
     notes: notes || proposal.description || undefined,
   });
+
+  // Fire-and-forget, same as place.controller.js's direct-create path — a
+  // promoted proposal rarely comes with hand-picked coordinates.
+  if (lat == null || lng == null) {
+    geocodeService.geocode(place.address).then((coords) => {
+      if (coords) Place.findByIdAndUpdate(place._id, coords).catch(() => {});
+    });
+  }
 
   proposal.status = 'promoted';
   proposal.placeId = place._id;

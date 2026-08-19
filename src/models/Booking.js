@@ -5,7 +5,7 @@ const bookingSchema = new mongoose.Schema(
     tripId: { type: mongoose.Schema.Types.ObjectId, ref: 'Trip', required: true },
     type: {
       type: String,
-      enum: ['flight', 'hotel', 'reservation', 'rail', 'activity', 'other'],
+      enum: ['flight', 'hotel', 'reservation', 'rail', 'activity', 'visa', 'document', 'other'],
       required: true,
     },
     title: { type: String, required: true },
