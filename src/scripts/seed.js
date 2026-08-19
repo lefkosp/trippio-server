@@ -54,8 +54,8 @@ async function seed() {
     console.log(`✅  Dev user exists: ${devUser.email}`);
   }
 
-  // 3. Insert Trip (owned by dev user)
-  const { createdBy: _c, ...tripFields } = seedData.trip;
+  // 3. Insert Trip (owned by dev user — ownership is createdBy, not a collaborator row)
+  const { createdBy: _c, collaborators: _co, ...tripFields } = seedData.trip;
   const trip = await Trip.create({ ...tripFields, createdBy: devUser._id });
   const tripId = trip._id;
   console.log(`✅  Trip created: ${trip.name} (${tripId})`);
