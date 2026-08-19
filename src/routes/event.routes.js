@@ -3,12 +3,16 @@ const ctrl = require('../controllers/event.controller');
 const { Event } = require('../models');
 const {
   attachAccessContext,
+  requireTripReadAccess,
   requireDayReadAccess,
   requireDayWriteAccess,
   requireResourceWriteAccess,
 } = require('../middleware/accessAuth');
 
 const router = Router();
+
+// Nested under /trips/:tripId
+router.get('/trips/:tripId/events', attachAccessContext, requireTripReadAccess('tripId'), ctrl.getTripEvents);
 
 // Nested under /days/:dayId
 router.get('/days/:dayId/events', attachAccessContext, requireDayReadAccess('dayId'), ctrl.getEvents);

@@ -2,6 +2,8 @@ const Event = require('../models/Event');
 
 exports.findByDay = (dayId) => Event.find({ dayId }).sort({ order: 1 });
 
+exports.findByTrip = (tripId) => Event.find({ tripId }).sort({ order: 1 });
+
 exports.findById = (id) => Event.findById(id);
 
 exports.create = (data) => Event.create(data);

@@ -7,6 +7,14 @@ exports.getEvents = asyncHandler(async (req, res) => {
   res.json({ data: events, error: null });
 });
 
+// Trip-wide — used by the shortlist map ("all places") and the "which
+// promoted places are still unassigned" view, both of which need every
+// event across the trip rather than one day at a time.
+exports.getTripEvents = asyncHandler(async (req, res) => {
+  const events = await eventService.findByTrip(req.params.tripId);
+  res.json({ data: events, error: null });
+});
+
 exports.createEvent = asyncHandler(async (req, res) => {
   const day = await dayService.findById(req.params.dayId);
   if (!day) {
