@@ -21,6 +21,13 @@ if (env.sentryDsn) {
 const app = express();
 const PORT = env.port;
 
+// Render sits in front of the app behind its own reverse proxy, so req.ip / X-Forwarded-For
+// must come from that one trusted hop — otherwise express-rate-limit refuses to use it (a
+// client could otherwise spoof X-Forwarded-For to dodge IP-based rate limiting).
+if (env.isProd()) {
+  app.set('trust proxy', 1);
+}
+
 // ── Middleware ──────────────────────────────────────────────
 app.use(helmet());
 app.use(cors({ origin: env.clientOrigin, credentials: true }));
