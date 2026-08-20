@@ -1,9 +1,9 @@
 const crypto = require('crypto');
-const { exec } = require('child_process');
 const jwt = require('jsonwebtoken');
 const env = require('../config/env');
 const { COOKIE_NAME, getCookieOptions } = require('../config/cookies');
 const { User, LoginToken, Session } = require('../models');
+const { cloneDemoTripForUser } = require('./demoSeed.service');
 
 const LOGIN_TOKEN_TTL_MS = 15 * 60 * 1000; // 15 min
 
@@ -40,11 +40,11 @@ async function findOrCreateUser(email) {
   if (!user) {
     user = await User.create({ email: normalized });
     // TEMPORARY — remove this once the group has real trip data of their own.
-    // Reseeds the demo "Japan 2026" trip so a first-time sign-in has something
-    // to look at instead of an empty app. Fire-and-forget: shouldn't block or
-    // fail the sign-in if seeding has a problem.
-    exec('npm run seed', (err) => {
-      if (err) console.error('[demo seed] npm run seed failed:', err);
+    // Gives this specific new user their own demo trip so a first-time sign-in
+    // has something to look at instead of an empty app. Fire-and-forget:
+    // shouldn't block or fail the sign-in if seeding has a problem.
+    cloneDemoTripForUser(user._id).catch((err) => {
+      console.error('[demo seed] cloneDemoTripForUser failed:', err);
     });
   }
   return user;
