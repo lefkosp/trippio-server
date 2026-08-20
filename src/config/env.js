@@ -53,7 +53,7 @@ module.exports = {
   // Leave unset unless client and API share a parent domain
   cookieDomain: optional('COOKIE_DOMAIN', ''),
   resendApiKey: optional('RESEND_API_KEY', ''),
-  emailFrom: optional('EMAIL_FROM', 'Trippio <onboarding@resend.dev>'),
+  emailFrom: optional('EMAIL_FROM', 'Trippio <hello@mail.trippio.xyz>'),
   sentryDsn: optional('SENTRY_DSN', ''),
   isProd,
   isDev: () => !isProd(),
