@@ -19,6 +19,15 @@ const optional = (name, defaultValue) => {
 // trailing slash), so a stray trailing slash in the env var silently breaks CORS/cookies.
 const optionalOrigin = (name, defaultValue) => optional(name, defaultValue).replace(/\/+$/, '');
 
+// CLIENT_ORIGIN may be a comma-separated list — the client is reachable at more than one
+// origin (custom domain, its www alias, the netlify.app fallback), and all of them need to
+// pass the CORS check.
+const optionalOriginList = (name, defaultValue) =>
+  optional(name, defaultValue)
+    .split(',')
+    .map((o) => o.trim().replace(/\/+$/, ''))
+    .filter(Boolean);
+
 const optionalNumber = (name, defaultValue) => {
   const v = process.env[name];
   if (v === undefined || v === '') return defaultValue;
@@ -44,7 +53,7 @@ if (rawSecret === '' && !isProd()) {
 module.exports = {
   port: optionalNumber('PORT', 4000),
   mongoUri: process.env.MONGO_URI || process.env.MONGO_URL,
-  clientOrigin: optionalOrigin('CLIENT_ORIGIN', 'http://localhost:5173'),
+  clientOrigins: optionalOriginList('CLIENT_ORIGIN', 'http://localhost:5173'),
   appOrigin: optionalOrigin('APP_ORIGIN', 'http://localhost:5173'),
   accessTokenSecret,
   accessTokenTtlMinutes: optionalNumber('ACCESS_TOKEN_TTL_MINUTES', 15),
