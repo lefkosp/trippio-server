@@ -13,6 +13,23 @@ function envelopeError(message, code = 'BAD_REQUEST', details = undefined) {
   return { data: null, error: { message, code, details } };
 }
 
+// The magic link should send the user back to whichever origin they actually requested
+// from (trippio.xyz vs the netlify.app fallback, say) rather than one fixed APP_ORIGIN.
+// Only trust req.headers.origin when it's in the same allowlist CORS uses — a raw HTTP
+// client (not a browser) can set Origin to anything, and this link goes out over email,
+// so an unchecked value here would let someone redirect a real login link to a phishing
+// domain.
+function resolveMagicLinkOrigin(req) {
+  const origin = req.headers.origin;
+  if (origin) {
+    const normalized = origin.replace(/\/+$/, '');
+    if (env.clientOrigins.includes(normalized)) {
+      return normalized;
+    }
+  }
+  return env.appOrigin;
+}
+
 exports.requestLink = asyncHandler(async (req, res) => {
   const { email } = req.body || {};
   if (!email || typeof email !== 'string') {
@@ -25,7 +42,7 @@ exports.requestLink = asyncHandler(async (req, res) => {
 
   const user = await authService.findOrCreateUser(trimmed);
   const { raw, expiresAt } = await authService.createLoginToken(user._id);
-  const appOrigin = env.appOrigin.replace(/\/$/, '');
+  const appOrigin = resolveMagicLinkOrigin(req);
   const magicLink = `${appOrigin}/auth/verify?token=${raw}`;
 
   await emailService.sendMagicLinkEmail({ to: trimmed, magicLink });
