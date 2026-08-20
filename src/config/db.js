@@ -1,6 +1,13 @@
 const mongoose = require('mongoose');
 const env = require('./env');
 
+/** JSON.stringify on an Error yields `{}` — no message/stack — because
+ * those are non-enumerable own properties. Pull out the parts that matter. */
+function describeError(err) {
+  if (!err) return err;
+  return { name: err.name, message: err.message, code: err.code };
+}
+
 /** Strips the password out of a mongodb(+srv):// URI so it's safe to log. */
 function redactUri(uri) {
   return uri.replace(/(mongodb(?:\+srv)?:\/\/[^:]+:)[^@]+(@)/, '$1***$2');
@@ -31,11 +38,13 @@ async function connectDb() {
     console.error('    name:', err.name);
     console.error('    code:', err.code, err.codeName ?? '');
     console.error('    message:', err.message);
-    if (err.reason) {
-      console.error('    reason:', JSON.stringify(err.reason, null, 2));
-    }
-    if (err.cause) {
-      console.error('    cause:', err.cause.message ?? err.cause);
+    // The per-server errors inside reason.servers are what actually explain
+    // a ReplicaSetNoPrimary failure — each shard's real underlying error
+    // (ETIMEDOUT, ECONNREFUSED, a TLS alert, DNS failure) lives here.
+    const servers = err.reason?.servers ?? err.cause?.servers;
+    const entries = servers instanceof Map ? servers.entries() : Object.entries(servers ?? {});
+    for (const [address, desc] of entries) {
+      console.error(`    server ${address}:`, JSON.stringify(describeError(desc.error)));
     }
     process.exit(1);
   }
