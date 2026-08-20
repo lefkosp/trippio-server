@@ -15,6 +15,10 @@ const optional = (name, defaultValue) => {
   return v !== undefined && v !== '' ? v : defaultValue;
 };
 
+// Origins are compared literally against the browser's Origin header (which never has a
+// trailing slash), so a stray trailing slash in the env var silently breaks CORS/cookies.
+const optionalOrigin = (name, defaultValue) => optional(name, defaultValue).replace(/\/+$/, '');
+
 const optionalNumber = (name, defaultValue) => {
   const v = process.env[name];
   if (v === undefined || v === '') return defaultValue;
@@ -40,8 +44,8 @@ if (rawSecret === '' && !isProd()) {
 module.exports = {
   port: optionalNumber('PORT', 4000),
   mongoUri: process.env.MONGO_URI || process.env.MONGO_URL,
-  clientOrigin: optional('CLIENT_ORIGIN', 'http://localhost:5173'),
-  appOrigin: optional('APP_ORIGIN', 'http://localhost:5173'),
+  clientOrigin: optionalOrigin('CLIENT_ORIGIN', 'http://localhost:5173'),
+  appOrigin: optionalOrigin('APP_ORIGIN', 'http://localhost:5173'),
   accessTokenSecret,
   accessTokenTtlMinutes: optionalNumber('ACCESS_TOKEN_TTL_MINUTES', 15),
   refreshTokenTtlDays: optionalNumber('REFRESH_TOKEN_TTL_DAYS', 30),
