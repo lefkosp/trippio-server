@@ -121,3 +121,43 @@ exports.deleteTrip = [
     res.json({ data: { ok: true }, error: null });
   }),
 ];
+
+exports.getCollaborators = [
+  asyncHandler(async (req, res) => {
+    const collaborators = await tripService.getCollaboratorsWithEmails(req.params.tripId);
+    if (!collaborators) {
+      return res.status(404).json({
+        data: null,
+        error: { message: 'Trip not found', code: 'NOT_FOUND' },
+      });
+    }
+    res.json({ data: { collaborators }, error: null });
+  }),
+];
+
+exports.updateCollaboratorRole = [
+  asyncHandler(async (req, res) => {
+    const { role } = req.body || {};
+    if (!['editor', 'viewer'].includes(role)) {
+      return res.status(400).json({
+        data: null,
+        error: { message: 'role must be "editor" or "viewer"', code: 'VALIDATION_ERROR' },
+      });
+    }
+    const result = await tripService.updateCollaboratorRole(req.params.tripId, req.params.userId, role);
+    if (!result) {
+      return res.status(404).json({
+        data: null,
+        error: { message: 'Collaborator not found', code: 'NOT_FOUND' },
+      });
+    }
+    res.json({ data: { ok: true }, error: null });
+  }),
+];
+
+exports.removeCollaborator = [
+  asyncHandler(async (req, res) => {
+    await tripService.removeCollaborator(req.params.tripId, req.params.userId);
+    res.json({ data: { ok: true }, error: null });
+  }),
+];

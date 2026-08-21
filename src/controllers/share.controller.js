@@ -57,6 +57,38 @@ exports.createShareLink = [
   }),
 ];
 
+exports.listShareLinks = [
+  asyncHandler(async (req, res) => {
+    const shareLinks = await TripShareLink.find({ tripId: req.trip._id }).sort({ createdAt: -1 });
+    return res.json({
+      data: {
+        shareLinks: shareLinks.map((link) => ({
+          id: String(link._id),
+          role: link.role,
+          createdAt: link.createdAt,
+          expiresAt: link.expiresAt || undefined,
+          revokedAt: link.revokedAt || undefined,
+        })),
+      },
+      error: null,
+    });
+  }),
+];
+
+exports.revokeShareLink = [
+  asyncHandler(async (req, res) => {
+    const link = await TripShareLink.findOne({ _id: req.params.shareLinkId, tripId: req.trip._id });
+    if (!link) {
+      return res.status(404).json(envelopeError('Share link not found', 'NOT_FOUND'));
+    }
+    if (!link.revokedAt) {
+      link.revokedAt = new Date();
+      await link.save();
+    }
+    return res.json({ data: { ok: true }, error: null });
+  }),
+];
+
 exports.resolveShareLink = [
   asyncHandler(async (req, res) => {
     const token = req.params.token;

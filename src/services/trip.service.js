@@ -1,4 +1,4 @@
-const { Trip, Day, Event, Place, Booking, Suggestion, Proposal, TripShareLink } = require('../models');
+const { Trip, Day, Event, Place, Booking, Suggestion, Proposal, TripShareLink, User } = require('../models');
 
 exports.findAll = (userId) =>
   Trip.find({
@@ -16,6 +16,33 @@ exports.update = (id, data) =>
   Trip.findByIdAndUpdate(id, data, { new: true, runValidators: true });
 
 exports.remove = (id) => Trip.findByIdAndDelete(id);
+
+exports.getCollaboratorsWithEmails = async (tripId) => {
+  const trip = await Trip.findById(tripId).lean();
+  if (!trip) return null;
+  const collaborators = trip.collaborators || [];
+  const users = await User.find({ _id: { $in: collaborators.map((c) => c.userId) } }).lean();
+  const emailById = new Map(users.map((u) => [String(u._id), u.email]));
+  return collaborators.map((c) => ({
+    userId: String(c.userId),
+    email: emailById.get(String(c.userId)),
+    role: c.role,
+    addedAt: c.addedAt,
+  }));
+};
+
+exports.updateCollaboratorRole = async (tripId, userId, role) => {
+  const trip = await Trip.findById(tripId);
+  if (!trip) return null;
+  const collaborator = trip.collaborators.find((c) => String(c.userId) === String(userId));
+  if (!collaborator) return null;
+  collaborator.role = role;
+  await trip.save();
+  return { ok: true };
+};
+
+exports.removeCollaborator = (tripId, userId) =>
+  Trip.findByIdAndUpdate(tripId, { $pull: { collaborators: { userId } } });
 
 /**
  * Delete a trip and all associated documents. Owner-only; callers must enforce auth.
