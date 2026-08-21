@@ -1,5 +1,6 @@
 const asyncHandler = require('../middleware/asyncHandler');
 const tripService = require('../services/trip.service');
+const tripPortabilityService = require('../services/tripPortability.service');
 const requireAuth = require('../middleware/requireAuth');
 
 exports.getTrips = [requireAuth, asyncHandler(async (req, res) => {
@@ -80,6 +81,31 @@ exports.createTrip = [requireAuth, asyncHandler(async (req, res) => {
   const trip = await tripService.create(payload, req.user.id);
   res.status(201).json({ data: trip, error: null });
 })];
+
+exports.exportTrip = [
+  asyncHandler(async (req, res) => {
+    const data = await tripPortabilityService.exportTrip(req.trip._id);
+    res.json({ data, error: null });
+  }),
+];
+
+exports.importTrip = [
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    try {
+      const trip = await tripPortabilityService.importTrip(req.user.id, req.body);
+      res.status(201).json({ data: trip, error: null });
+    } catch (err) {
+      if (err.code === 'VALIDATION_ERROR') {
+        return res.status(400).json({
+          data: null,
+          error: { message: err.message, code: 'VALIDATION_ERROR' },
+        });
+      }
+      throw err;
+    }
+  }),
+];
 
 exports.deleteTrip = [
   requireAuth,

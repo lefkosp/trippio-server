@@ -1,0 +1,147 @@
+{
+  "version": 1,
+  "exportedAt": "2026-08-21T00:00:00.000Z",
+  "trip": {
+    "name": "Sample Trip",
+    "startDate": "2026-10-22",
+    "endDate": "2026-10-24",
+    "timezone": "Asia/Shanghai",
+    "preferences": {
+      "destinationCity": "Beijing",
+      "destinationCountry": "China",
+      "pace": "balanced",
+      "dailyStructure": "mixed",
+      "interests": ["food", "history"],
+      "budgetLevel": "mid",
+      "transportPreference": "publicTransport",
+      "notes": "First time in China",
+      "groupSize": 4
+    }
+  },
+  "collaborators": [
+    { "email": "friend1@trippio.local", "role": "editor" }
+  ],
+  "places": [
+    {
+      "localId": "p0",
+      "name": "Forbidden City",
+      "address": "4 Jingshan Front St, Dongcheng, Beijing",
+      "phone": "",
+      "lat": 39.9163,
+      "lng": 116.3972,
+      "googleMapsUrl": "",
+      "tags": ["sight", "history"],
+      "notes": "Buy tickets a few days ahead, they sell out",
+      "nameZh": "故宫",
+      "metroStation": "Tiananmen East",
+      "metroLine": "Line 1",
+      "requiresAdvanceBooking": true,
+      "bookingWindowDays": 3
+    },
+    {
+      "localId": "p1",
+      "name": "Jing'an Noodle House",
+      "address": "88 Nanjing Rd, Beijing",
+      "phone": "",
+      "lat": 39.9088,
+      "lng": 116.4103,
+      "googleMapsUrl": "",
+      "tags": ["food"],
+      "notes": "",
+      "nameZh": "静安面馆",
+      "metroStation": "",
+      "metroLine": "",
+      "requiresAdvanceBooking": false,
+      "bookingWindowDays": null
+    }
+  ],
+  "days": [
+    { "localId": "d0", "date": "2026-10-22", "city": "Beijing", "notes": "", "order": 1 },
+    { "localId": "d1", "date": "2026-10-23", "city": "Beijing", "notes": "", "order": 2 }
+  ],
+  "events": [
+    {
+      "dayLocalId": "d0",
+      "title": "Land at PEK, transfer to hotel",
+      "startTime": "14:00",
+      "endTime": "15:30",
+      "type": "transport",
+      "placeLocalId": null,
+      "transit": {
+        "mode": "train",
+        "from": "Beijing Capital Airport",
+        "to": "Hotel",
+        "instructions": "Airport Express to Dongzhimen, then Line 2",
+        "links": []
+      },
+      "links": [],
+      "order": 1,
+      "status": "planned",
+      "notes": ""
+    },
+    {
+      "dayLocalId": "d1",
+      "title": "Forbidden City morning visit",
+      "startTime": "09:00",
+      "endTime": "12:00",
+      "type": "sight",
+      "placeLocalId": "p0",
+      "transit": {},
+      "links": [],
+      "order": 1,
+      "status": "planned",
+      "notes": "Enter from the south gate"
+    }
+  ],
+  "bookings": [
+    {
+      "type": "flight",
+      "title": "CYY -> PEK",
+      "confirmationNumber": "ABC123",
+      "date": "2026-10-22",
+      "startTime": "08:00",
+      "location": "Larnaca Airport",
+      "links": [],
+      "notes": ""
+    }
+  ],
+  "suggestions": [
+    {
+      "city": "Beijing",
+      "title": "Try Peking duck near Qianmen",
+      "placeLocalId": null,
+      "type": "food",
+      "why": "Classic, and close to the hotel",
+      "links": []
+    }
+  ],
+  "proposals": [
+    {
+      "title": "Noodle place from that reel",
+      "description": "Someone posted this on Instagram, looks great",
+      "category": "food",
+      "url": "https://instagram.com/p/example",
+      "imageUrl": "",
+      "source": "instagram",
+      "city": "Beijing",
+      "tags": ["food"],
+      "suggestedDayLocalId": "d1",
+      "suggestedPlaceLocalId": null,
+      "links": [],
+      "proposedByEmail": "friend1@trippio.local",
+      "status": "promoted",
+      "votes": [
+        { "email": "friend1@trippio.local", "value": "yes", "votedAt": "2026-08-01T00:00:00.000Z" },
+        { "email": "friend2@trippio.local", "value": "maybe", "votedAt": "2026-08-02T00:00:00.000Z" }
+      ],
+      "approvedByEmail": null,
+      "approvedAt": null,
+      "rejectedByEmail": null,
+      "rejectedAt": null,
+      "promotedPlaceLocalId": "p1",
+      "promotedByEmail": "friend1@trippio.local",
+      "promotedAt": "2026-08-03T00:00:00.000Z",
+      "createdAt": "2026-07-30T00:00:00.000Z"
+    }
+  ]
+}
